@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local Cuisine | 100年フード検索</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div>
+        <h1 id="title"></h1>
+        <p id="subtitle" class="subtitle"></p>
+      </div>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="ja">日本語</button>
+        <button type="button" data-lang="en">English</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="controls" aria-label="search">
+      <div class="search-row">
+        <input id="q" type="search" autocomplete="off">
+        <select id="pref" aria-label="prefecture"></select>
+        <button id="clear" type="button" class="ghost"></button>
+      </div>
+      <div id="regions" class="chips" role="group"></div>
+    </section>
+
+    <p id="count" class="count" aria-live="polite"></p>
+    <div id="results" class="grid"></div>
+    <p id="empty" class="empty" hidden></p>
+  </main>
+
+  <footer class="site-footer">
+    <p id="source"></p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
