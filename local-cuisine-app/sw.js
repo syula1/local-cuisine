@@ -1,8 +1,8 @@
 "use strict";
 
 // Network-first service worker: always tries the latest files, falls back to cache when offline.
-const CACHE = "local-cuisine-v1";
-const FILES = ["./", "index.html", "style.css", "app.js", "data.js", "manifest.webmanifest", "icon.svg"];
+const CACHE = "local-cuisine-v2";
+const FILES = ["./", "index.html", "style.css", "app.js", "data.js", "nutrition.js", "manifest.webmanifest", "icon.svg"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));

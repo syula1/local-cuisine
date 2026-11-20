@@ -68,6 +68,17 @@ const I18N = {
       : "🎉 全国制覇！おめでとうございます！",
     reset: "食べた記録をリセット",
     resetConfirm: "食べた記録をすべて消します。よろしいですか？",
+    filterVegetarian: "ベジタリアン",
+    filterVegan: "ヴィーガン",
+    filterLowCal: "400kcal以下",
+    filterLowSalt: "塩分2.5g以下",
+    dietNote: "※ヴィーガン／ベジタリアンの判定は主な材料にもとづく目安で、出汁（かつお節・煮干しなど）や調味料は考慮していません。カロリー・塩分は1人前の推定値です。店やレシピで大きく変わるため、必ず店舗等でご確認ください。区分が「不明」の料理は、ベジタリアン／ヴィーガンの絞り込みから除外されます。",
+    dietLabels: { V: "ヴィーガン対応", T: "ベジタリアン対応", N: "肉・魚を含む", U: "区分不明" },
+    kcalText: (n) => `約${n}kcal`,
+    saltText: (n) => `塩分 約${n}g`,
+    perServing: "1人前の推定値",
+    dashiWarn: "出汁（魚）に注意",
+    lowConf: "推定の確度が低い",
     source: "出典：「100年フード」都道府県別一覧（文化庁）。説明文は簡易的なもので、不確かな項目は一般的な表現にとどめています。記録はこの端末のブラウザにのみ保存されます。",
     docTitle: "Local Cuisine | 100年フード検索",
   },
@@ -101,13 +112,27 @@ const I18N = {
       : "🎉 You've eaten them all! Congratulations!",
     reset: "Reset eaten records",
     resetConfirm: "This will clear all your eaten records. Continue?",
+    filterVegetarian: "Vegetarian",
+    filterVegan: "Vegan",
+    filterLowCal: "≤ 400 kcal",
+    filterLowSalt: "≤ 2.5 g salt",
+    dietNote: "Note: Vegan / vegetarian labels are estimates based on main ingredients only; fish stock (dashi), seasonings and sauces are not considered. Calories and salt are rough per-serving estimates and vary by restaurant and recipe — always confirm with the venue. Dishes marked \"Unknown\" are excluded when filtering for vegetarian / vegan.",
+    dietLabels: { V: "Vegan-friendly", T: "Vegetarian-friendly", N: "Contains meat/fish", U: "Unknown" },
+    kcalText: (n) => `~${n} kcal`,
+    saltText: (n) => `Salt ~${n} g`,
+    perServing: "Estimate per serving",
+    dashiWarn: "May use fish dashi",
+    lowConf: "Low-confidence estimate",
     source: "Source: \"100-Year Food\" list by prefecture (Agency for Cultural Affairs). Descriptions are brief summaries; uncertain items are kept generic. Your records are stored only in this device's browser.",
     docTitle: "Local Cuisine | 100-Year Food Finder",
   },
 };
 
 // ---- State ----
-const state = { lang: "ja", q: "", pref: "", region: "", status: "" };
+const state = {
+  lang: "ja", q: "", pref: "", region: "", status: "",
+  diet: { vegetarian: false, vegan: false, lowCal: false, lowSalt: false },
+};
 const STORE_KEY = "local-cuisine-eaten-v1";
 
 try {
@@ -129,10 +154,16 @@ const els = {
   pScopeBar: $("pScopeBar"), pScopeBarWrap: $("pScopeBarWrap"), pScopeCount: $("pScopeCount"),
   prefProgressSummary: $("prefProgressSummary"), prefProgressList: $("prefProgressList"),
   resetEaten: $("resetEaten"),
+  dietFilters: $("dietFilters"), dietNote: $("dietNote"),
 };
 
-const foods = FOODS.map(([pref, ja, descJa, en, descEn]) => ({
+if (typeof NUTRITION === "undefined" || NUTRITION.length !== FOODS.length) {
+  throw new Error("NUTRITION data does not match FOODS");
+}
+
+const foods = FOODS.map(([pref, ja, descJa, en, descEn], i) => ({
   pref, ja, descJa, en, descEn,
+  kcal: NUTRITION[i][0], salt: NUTRITION[i][1], diet: NUTRITION[i][2], flags: NUTRITION[i][3],
   key: pref + "|" + ja,
   haystack: [pref, PREF_BY_JA[pref].en, ja, descJa, en, descEn].join(" ").toLowerCase(),
 }));
@@ -298,6 +329,29 @@ function renderStatic() {
     els.regions.append(b);
   });
 
+  // Diet / nutrition filter chips
+  els.dietFilters.innerHTML = "";
+  [
+    ["vegetarian", s.filterVegetarian],
+    ["vegan", s.filterVegan],
+    ["lowCal", s.filterLowCal],
+    ["lowSalt", s.filterLowSalt],
+  ].forEach(([k, label]) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip diet-chip";
+    b.textContent = label;
+    b.setAttribute("aria-pressed", String(state.diet[k]));
+    b.addEventListener("click", () => {
+      state.diet[k] = !state.diet[k];
+      renderStatic();
+      renderResults();
+    });
+    els.dietFilters.append(b);
+  });
+  els.dietNote.hidden = !Object.values(state.diet).some(Boolean);
+  els.dietNote.textContent = s.dietNote;
+
   renderProgress();
 }
 
@@ -319,6 +373,11 @@ function renderResults() {
       if (state.region && p.region !== state.region) return false;
       if (state.status === "eaten" && !eaten.has(f.key)) return false;
       if (state.status === "todo" && eaten.has(f.key)) return false;
+      const d = state.diet;
+      if (d.vegan && f.diet !== "V") return false;
+      if (d.vegetarian && f.diet !== "V" && f.diet !== "T") return false;
+      if (d.lowCal && !(f.kcal <= 400)) return false;
+      if (d.lowSalt && !(f.salt <= 2.5)) return false;
       return terms.every((w) => f.haystack.includes(w));
     })
     .sort((a, b) => PREF_BY_JA[a.pref].order - PREF_BY_JA[b.pref].order);
@@ -362,6 +421,21 @@ function renderResults() {
     desc.className = "desc";
     desc.textContent = ja ? f.descJa : f.descEn;
 
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    const addTag = (text, cls, title) => {
+      const el = document.createElement("span");
+      el.className = "tag " + cls;
+      el.textContent = text;
+      if (title) el.title = title;
+      meta.append(el);
+    };
+    addTag(s.dietLabels[f.diet], "diet-" + f.diet);
+    addTag(s.kcalText(f.kcal), f.kcal <= 400 ? "ok" : "", s.perServing);
+    addTag(s.saltText(f.salt), f.salt <= 2.5 ? "ok" : "", s.perServing);
+    if (f.flags.includes("d") && f.diet !== "N") addTag(s.dashiWarn, "warn");
+    if (f.flags.includes("?")) addTag(s.lowConf, "faint");
+
     const foot = document.createElement("div");
     foot.className = "foot";
 
@@ -384,7 +458,7 @@ function renderResults() {
     link.textContent = s.search + " ↗";
 
     foot.append(badge, link);
-    card.append(top, alt, desc, foot);
+    card.append(top, alt, desc, meta, foot);
     frag.append(card);
   });
   els.results.replaceChildren(frag);
@@ -437,6 +511,7 @@ els.clear.addEventListener("click", () => {
   state.pref = "";
   state.region = "";
   state.status = "";
+  state.diet = { vegetarian: false, vegan: false, lowCal: false, lowSalt: false };
   els.q.value = "";
   renderStatic();
   renderResults();
