@@ -1,7 +1,12 @@
 # Local Cuisine
 
-Search Japan's certified "100-Year Food" regional dishes by prefecture (Japanese / English).
+Eat your way through Japan's certified "100-Year Food" regional dishes (329 dishes, 47 prefectures).
+Mark the dishes you've eaten and watch your completion percentage grow — nationwide and per prefecture.
 
-Static site (HTML / CSS / JavaScript) — no build step. Open `index.html` or serve via GitHub Pages.
+- Search by dish name / description (Japanese / English)
+- Filter by region, prefecture, and eaten / not yet eaten
+- Progress (%) overall, per selection, and per prefecture
+- Records are saved in the browser (localStorage) on your device
+- Installable as an app (PWA) and works offline
 
-Live demo
+Static site (HTML / CSS / JavaScript) — no build step.
