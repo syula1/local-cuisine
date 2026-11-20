@@ -349,3 +349,36 @@ button.ghost:hover { border-color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   .bar-fill, .card { transition: none; }
 }
+
+/* ---- Diet / nutrition filters & tags ---- */
+.diet-chips { margin-top: 8px; padding-top: 10px; border-top: 1px dashed var(--border); }
+.diet-chip[aria-pressed="true"] {
+  background: var(--ok);
+  border-color: var(--ok);
+}
+.diet-note {
+  margin: 10px 0 0;
+  font-size: .78rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+.tag {
+  font-size: .72rem;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  background: var(--bg);
+}
+.tag.ok { color: var(--ok); border-color: var(--ok); }
+.tag.diet-V, .tag.diet-T { background: var(--ok-soft); color: var(--ok); border-color: var(--ok); font-weight: 600; }
+.tag.diet-U { font-style: italic; }
+.tag.warn { color: #b26a00; border-color: #d9a441; }
+.tag.faint { opacity: .75; border-style: dashed; }
+@media (prefers-color-scheme: dark) { .tag.warn { color: #e8b75a; } }
