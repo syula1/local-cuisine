@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Local Cuisine | 100年フード検索</title>
+  <meta name="theme-color" content="#b5412b">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div>
+        <h1 id="title"></h1>
+        <p id="subtitle" class="subtitle"></p>
+      </div>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="ja">日本語</button>
+        <button type="button" data-lang="en">English</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="progress-panel" aria-labelledby="progTitle">
+      <div class="prog-main">
+        <div class="prog-head">
+          <h2 id="progTitle"></h2>
+          <p class="prog-pct"><span id="pOverallPct">0</span><small>%</small></p>
+        </div>
+        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="pOverallBarWrap">
+          <div class="bar-fill" id="pOverallBar"></div>
+        </div>
+        <p class="prog-sub" id="pOverallCount"></p>
+        <p class="prog-msg" id="pMsg"></p>
+      </div>
+
+      <div class="prog-scope" id="pScope" hidden>
+        <div class="prog-head">
+          <h3 id="pScopeLabel"></h3>
+          <p class="prog-pct small"><span id="pScopePct">0</span><small>%</small></p>
+        </div>
+        <div class="bar thin" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="pScopeBarWrap">
+          <div class="bar-fill" id="pScopeBar"></div>
+        </div>
+        <p class="prog-sub" id="pScopeCount"></p>
+      </div>
+
+      <details class="pref-progress" id="prefProgress">
+        <summary id="prefProgressSummary"></summary>
+        <div id="prefProgressList" class="pref-list"></div>
+      </details>
+    </section>
+
+    <section class="controls" aria-label="search">
+      <div class="search-row">
+        <input id="q" type="search" autocomplete="off">
+        <select id="pref" aria-label="prefecture"></select>
+        <select id="status" aria-label="status"></select>
+        <button id="clear" type="button" class="ghost"></button>
+      </div>
+      <div id="regions" class="chips" role="group"></div>
+    </section>
+
+    <p id="count" class="count" aria-live="polite"></p>
+    <div id="results" class="grid"></div>
+    <p id="empty" class="empty" hidden></p>
+  </main>
+
+  <footer class="site-footer">
+    <p id="source"></p>
+    <p><button id="resetEaten" type="button" class="link-btn"></button></p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
